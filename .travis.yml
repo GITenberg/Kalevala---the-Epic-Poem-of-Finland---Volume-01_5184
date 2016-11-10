@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: Pj/RsuIQXtab7Olf8Na7cGb2GYxFJQvrU6bbpTFBeZPvSFY+BQRiYsSsCvf86shyoRnMWCRJ/wwiXSycqWWZPipgoSUjU2WfiLGpt0TN+s0N5p5CmNmma+F3vrPUaPnlmO1Uxxkyg5pea2EaERtlaKMmLTvYeWRZfahFcxjSwgPIeCnuqgNVjRygPxCClLMWJXQKjPsFpt7D6N7EJQ5ykcXiS7agbN2M0sCBKVXRUyC6Eie7hx4m4Xhlr0KbH9I4vD/jiwvV4x3FtUetVCKWuI5AW3KBdUqDDlSLdoGdJsmBHCWE61Jq+yQj0KUIMNH/SuBKtyB/Zj3YNm12VbmI/CGxlbq+6Xrh0uKtKIqgb8VEs7J+nPNE8F7mvOWjxKJkfAuqpPSKmBr0MeneRRD3OAWzDkNKGbddGoykwyJU9n7G1qAc2GIVRdVih4gh8Q1ik/h2lBJgRAp614Dd+Yqmqnw3LqMdtBHtSAu2wVRNJAVd+EupJXObzHvvj544tDaH8mh6PKSD9vLs4OOUngPQJX8hLeMdB+jCmRxgdpYK/B6YJIpNj/J5eP518cPnh6v7OqCbZ/XTaDMnQMeaDXt6Fx3NjU1pc3Mhe0AisGf9H8lqyEJRVKFbym9ZVpiLpBJm9iQdzGl28r+xWwVh394KgJEudDEbznpJY0wpjLT34A0=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Kalevala---the-Epic-Poem-of-Finland---Volume-01_5184
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
